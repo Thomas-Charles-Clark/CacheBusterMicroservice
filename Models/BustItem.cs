@@ -1,4 +1,6 @@
-﻿namespace CacheBusterMicroservice.Models
+﻿using Newtonsoft.Json;
+
+namespace CacheBusterMicroservice.Models
 {
 	public class BustItem
 	{
@@ -31,6 +33,11 @@
 			this.countryId = countryId;
 			this.languageId = languageId;
 			this.pageSectionIds = pageSectionIds ?? [];
+		}
+
+		public override string ToString()
+		{
+			return JsonConvert.SerializeObject(this, Formatting.Indented);
 		}
 	}
 }

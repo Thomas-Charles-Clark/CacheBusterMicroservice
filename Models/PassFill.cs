@@ -1,6 +1,6 @@
 ﻿namespace CacheBusterMicroservice.Models
 {
-	public class PassFiller
+	public class PassFill
 	{
 		public IEnumerable<string> URLs { get; set; } = [];
 	}
