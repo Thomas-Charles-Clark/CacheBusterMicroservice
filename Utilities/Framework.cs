@@ -8,7 +8,7 @@
 
 		public static readonly string[] SiteHostNames =
 		[
-			"localhost",
+			"localhost:44338",
 			"flock-dev.designersguild.com",
 			"flock-preview.designersguild.com",
 			"www.designersguild.com"
