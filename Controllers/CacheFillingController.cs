@@ -36,7 +36,7 @@ namespace CacheBusterMicroservice.Controllers
 		/// <summary>
 		/// Fill
 		/// </summary>
-		/// <param name="objBust">Contains byte Target and IEnumerable<BustItem></param>
+		/// <param name="objBust">Contains string Host and IEnumerable<BustItem></param>
 		/// <returns></returns>
 		[HttpPost]
 		[Consumes(MediaTypeNames.Application.Json)]

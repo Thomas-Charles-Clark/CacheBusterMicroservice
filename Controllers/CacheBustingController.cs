@@ -28,7 +28,7 @@ namespace CacheBusterMicroservice.Controllers
 		/// <summary>
 		/// Post
 		/// </summary>
-		/// <param name="objBust">Contains byte Target and IEnumerable<BustItem></param>
+		/// <param name="objBust">Contains string Host and IEnumerable<BustItem></param>
 		/// <returns></returns>
 		[HttpPost]
 		[Consumes(MediaTypeNames.Application.Json)]
@@ -40,7 +40,7 @@ namespace CacheBusterMicroservice.Controllers
 				return Ok(new BustSummaryResult());
 			}
 
-			var targetUrl = $"{Framework.HttpsPrefix}{Framework.SiteHostNames[objBust.target]}{Framework.CacheBustingApiSingularSuffix}";
+			var targetUrl = $"{(objBust.host.StartsWith("https://") ? "" : Framework.HttpsPrefix)}{objBust.host}{Framework.CacheBustingApiSingularSuffix}";
 			var basicAuthToken = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{Credentials.SiteUsername}:{Credentials.SitePassword}"));
 
 			var result = await ProcessCacheBustItemsAsync(objBust.items, targetUrl, basicAuthToken);

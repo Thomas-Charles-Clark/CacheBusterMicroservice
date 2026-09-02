@@ -42,11 +42,11 @@ namespace CacheBusterMicroservice.Controllers
 		/// </returns>
 		[HttpGet("List")]
 		[ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-		public async Task<IActionResult> List(byte Target)
+		public async Task<IActionResult> List(string host) 
 		{
 			var basicAuthToken = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{Credentials.SiteUsername}:{Credentials.SitePassword}"));
 
-			string targetUrl = $"{Framework.HttpsPrefix}{Framework.SiteHostNames[Target]}/api/cache/list";
+			string targetUrl = $"{(host.StartsWith("https://") ? "" : Framework.HttpsPrefix)}{host}/api/cacheapi/list";
 
 			var result = await GetStreamAsync(targetUrl, basicAuthToken);
 
@@ -60,11 +60,38 @@ namespace CacheBusterMicroservice.Controllers
 		///		Stream back contents from named MemoryCache singleton residing in SiteHostNames[target].
 		/// </returns> 
 		[HttpGet("Inspect")]
-		public async Task<IActionResult> Inspect(byte Target, string CacheName)
+		public async Task<IActionResult> Inspect(string host, string cacheName)
 		{
 			try
 			{
-				string targetUrl = $"{Framework.HttpsPrefix}{Framework.SiteHostNames[Target]}/api/cache/inspect?cacheName={CacheName}";
+				string targetUrl = $"{(host.StartsWith("https://") ? "" : Framework.HttpsPrefix)}{host}/api/cacheapi/inspect?cacheName={cacheName}";
+				
+				var basicAuthToken = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{Credentials.SiteUsername}:{Credentials.SitePassword}"));
+
+				Client.DefaultRequestHeaders.Add("cacheBustingKey", Credentials.CacheBustingKey);
+				
+				var result = await GetStreamAsync(targetUrl, basicAuthToken);
+
+				return Ok(result);
+			}
+			catch (Exception e)
+			{
+				return StatusCode((int)HttpStatusCode.InternalServerError, e.Message);
+			}
+		}
+
+		/// <summary>
+		///		Summarise
+		/// </summary>
+		/// <returns>
+		///		Summary of cache contents from named MemoryCache singleton residing in host.
+		/// </returns> 
+		[HttpGet("Summarise")]
+		public async Task<IActionResult> Summarise(string host, string cacheName)
+		{
+			try
+			{
+				string targetUrl = $"{(host.StartsWith("https://") ? "" : Framework.HttpsPrefix)}{host}/api/cacheapi/summarise?cacheName={cacheName}";
 
 				var basicAuthToken = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{Credentials.SiteUsername}:{Credentials.SitePassword}"));
 
@@ -90,7 +117,7 @@ namespace CacheBusterMicroservice.Controllers
 			requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Basic", basicAuthToken);
 			requestMessage.Headers.UserAgent.ParseAdd("DesignersGuild_Cache_Inspect");
 			requestMessage.Headers.Add("Cookie", $"ASP.NET_SessionId={StaticSessionID}");
-
+			
 			// FIX: Send the actual configured request message!
 			// ResponseHeadersRead ensures we don't buffer 13k records into RAM at once
 			var response = await Client.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, cts.Token);
